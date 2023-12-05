@@ -116,19 +116,17 @@ const player1 = new Player(currentMap.player1StartingCordinates.x, currentMap.pl
 // ctx.fillStyle = "red";
 // ctx.fillRect(player2x, player2y, 25, 25);
 const player2 = new Player(currentMap.player2StartingCordinates.x, currentMap.player2StartingCordinates.y, "red", "./images/punk_guy_green.png");  // Objekt skapas med x,y,width,height som kan ritas ut, som kan flytta sin position
+
 let isCollidingLeft = false;
 let isCollidingRight = false;
 let isCollidingTop = false;
 let isCollidingBottom = false;
+let isCollidingLeftPlayer2 = false;
+let isCollidingRightPlayer2 = false;
+let isCollidingTopPlayer2 = false;
+let isCollidingBottomPlayer2 = false;
 
 function handleInput(keys, map) {
-    // DONE: make a barriers such that the players cannot move
-    // out of the canvas bounds
-    // DONE 1: Stop the player 1 from moving top above the canvas
-    // DONE 2: Stop the player 1 from moving down below the canvas
-    // DONE 3: Stop the player 1 from moving left outside the canvas
-    // DONE 4: Stop the player 1 from moving right outside the canvas
-    // DONE 5: Stop the player 2 as well from all directions
 
     const borders = map.borders;
 
@@ -153,17 +151,17 @@ function handleInput(keys, map) {
     }
 
     // player 2
-    if (keys.w.isPressed && player2.y > borders.top && !isCollidingTop) {
+    if (keys.w.isPressed && player2.y > borders.top && !isCollidingTopPlayer2) {
         player2.move(0, -1, 3);
     }
-    if (keys.s.isPressed && (player2.y + player2.height) < CANVAS_HEIGHT - borders.bottom && !isCollidingBottom) {
+    if (keys.s.isPressed && (player2.y + player2.height) < CANVAS_HEIGHT - borders.bottom && !isCollidingBottomPlayer2) {
         player2.move(0, 1, 0);
     }
 
-    if (keys.a.isPressed && player2.x > borders.left && !isCollidingLeft) {
+    if (keys.a.isPressed && player2.x > borders.left && !isCollidingLeftPlayer2) {
         player2.move(-1, 0, 1);
     }
-    if (keys.d.isPressed && (player2.x + player2.width) < CANVAS_WIDTH - borders.right && !isCollidingRight) {
+    if (keys.d.isPressed && (player2.x + player2.width) < CANVAS_WIDTH - borders.right && !isCollidingRightPlayer2) {
         player2.move(1, 0, 2);
     }
 
@@ -173,6 +171,57 @@ function handleInput(keys, map) {
 }
 
 let lastTime = 0
+
+function checkCollisions() {
+    // Check for collision on the left side of player2
+    isCollidingLeftPlayer2 = player1.x + player1.width > player2.x &&
+        player1.x < player2.x &&
+        player1.y < player2.y + player2.height &&
+        player1.y + player1.height > player2.y;
+
+    // Check for collision on the right side of player2
+    isCollidingRightPlayer2 = player1.x < player2.x + player2.width &&
+        player1.x + player1.width > player2.x + player2.width &&
+        player1.y < player2.y + player2.height &&
+        player1.y + player1.height > player2.y;
+
+    // Check for collision on the top side of player2
+    isCollidingTopPlayer2 = player1.y + player1.height > player2.y &&
+        player1.y < player2.y &&
+        player1.x < player2.x + player2.width &&
+        player1.x + player1.width > player2.x;
+
+    // Check for collision on the bottom side of player2
+    isCollidingBottomPlayer2 = player1.y < player2.y + player2.height &&
+        player1.y + player1.height > player2.y + player2.height &&
+        player1.x < player2.x + player2.width &&
+        player1.x + player1.width > player2.x;
+
+    // Check for collision on the left side of player1
+    isCollidingLeft = player2.x + player2.width > player1.x &&
+        player2.x < player1.x &&
+        player2.y < player1.y + player1.height &&
+        player2.y + player2.height > player1.y;
+
+    // Check for collision on the right side of player1
+    isCollidingRight = player2.x < player1.x + player1.width &&
+        player2.x + player2.width > player1.x + player1.width &&
+        player2.y < player1.y + player1.height &&
+        player2.y + player2.height > player1.y;
+
+    // Check for collision on the top side of player1
+    isCollidingTop = player2.y + player2.height > player1.y &&
+        player2.y < player1.y &&
+        player2.x < player1.x + player1.width &&
+        player2.x + player2.width > player1.x;
+
+    // Check for collision on the bottom side of player1
+    isCollidingBottom = player2.y < player1.y + player1.height &&
+        player2.y + player2.height > player1.y + player1.height &&
+        player2.x < player1.x + player1.width &&
+        player2.x + player2.width > player1.x;
+}
+
 
 function gameLoop(timestamp) {
 
@@ -190,6 +239,9 @@ function gameLoop(timestamp) {
 
     // Do movements based on which key is pressed
     handleInput(KEYS, currentMap);
+    checkCollisions(player1,player2)
+   
+
     // Draw Player 1
     // ctx.fillStyle = "blue";
     // ctx.fillRect(player1x, player1y, 25, 25);
@@ -215,97 +267,9 @@ function gameLoop(timestamp) {
 
 
 
-    isCollidingLeft = false;
-    isCollidingRight = false;
-    isCollidingTop = false;
-    isCollidingBottom = false;
 
-    // Check for collision on the left side of player2
-    if (player1.x + player1.width > player2.x &&
-        player1.x < player2.x &&
-        player1.y < player2.y + player2.height &&
-        player1.y + player1.height > player2.y) {
-        console.log("Collision on the left side!");
-        isCollidingLeft = true;
-    } else {
-        isCollidingLeft = false;
-    }
 
-    // Check for collision on the right side of player2
-    if (player1.x < player2.x + player2.width &&
-        player1.x + player1.width > player2.x + player2.width &&
-        player1.y < player2.y + player2.height &&
-        player1.y + player1.height > player2.y) {
-        console.log("Collision on the right side!");
-        isCollidingRight = true;
-    } else {
-        isCollidingRight = false;
-    }
 
-    // Check for collision on the top side of player2
-    if (player1.y + player1.height > player2.y &&
-        player1.y < player2.y &&
-        player1.x < player2.x + player2.width &&
-        player1.x + player1.width > player2.x) {
-        console.log("Collision on the top side!");
-        isCollidingTop = true;
-    } else {
-        isCollidingTop = false;
-    }
-
-    // Check for collision on the bottom side of player2
-    if (player1.y < player2.y + player2.height &&
-        player1.y + player1.height > player2.y + player2.height &&
-        player1.x < player2.x + player2.width &&
-        player1.x + player1.width > player2.x) {
-        console.log("Collision on the bottom side!");
-        isCollidingBottom = true;
-    } else {
-        isCollidingBottom = false;
-    }
-    // Check for collision on the left side of player1
-    if (player2.x + player2.width > player1.x &&
-        player2.x < player1.x &&
-        player2.y < player1.y + player1.height &&
-        player2.y + player2.height > player1.y) {
-        console.log("Collision on the left side of player1!");
-        isCollidingLeft = true;
-    } else {
-        isCollidingLeft = false;
-    }
-
-    // Check for collision on the right side of player1
-    if (player2.x < player1.x + player1.width &&
-        player2.x + player2.width > player1.x + player1.width &&
-        player2.y < player1.y + player1.height &&
-        player2.y + player2.height > player1.y) {
-        console.log("Collision on the right side of player1!");
-        isCollidingRight = true;
-    } else {
-        isCollidingRight = false;
-    }
-
-    // Check for collision on the top side of player1
-    if (player2.y + player2.height > player1.y &&
-        player2.y < player1.y &&
-        player2.x < player1.x + player1.width &&
-        player2.x + player2.width > player1.x) {
-        console.log("Collision on the top side of player1!");
-        isCollidingTop = true;
-    } else {
-        isCollidingTop = false;
-    }
-
-    // Check for collision on the bottom side of player1
-    if (player2.y < player1.y + player1.height &&
-        player2.y + player2.height > player1.y + player1.height &&
-        player2.x < player1.x + player1.width &&
-        player2.x + player2.width > player1.x) {
-        console.log("Collision on the bottom side of player1!");
-        isCollidingBottom = true;
-    } else {
-        isCollidingBottom = false;
-    }
 
 
 
