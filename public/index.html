@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="styles/chat.css">
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+
+<body>
+
+    <div class="Chat">
+        <h1>Chat</h1>
+        <input type="text" id="user" placeholder="Skriv namn (minst 3 tecken)">
+        <button id="setUser">Kliv in i chatten</button>
+
+        <form action="" method="post" id="messageForm" class="hidden">
+            <input type="text" id="message" required autofocus>
+            <input type="submit" value="Sänd">
+        </form>
+        <hr>
+        <div id="chatHistory" class="hidden"></div>
+    </div>
+
+    
+  <canvas id="canvas" width="832" height="576"></canvas>
+  <script src="scripts/chat.js"></script>
+  <script defer src="scripts/game.js"></script>
+  <script defer src="scripts/map.js"></script>
+  <script defer src="scripts/player.js"></script>
+</body>
+
+</html>
