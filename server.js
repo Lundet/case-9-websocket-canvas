@@ -42,15 +42,6 @@ wss.on('connection', (ws) => {
         const obj = JSON.parse(data);
         console.log("obj", obj);
 
-        //En frödröjning för att simulera problem...
-
-        // skicka vidare info till alla klienter som är anslutna
-        //     wss.clients.forEach(client => {
-        //         setTimeout(() => {
-        //         client.send(JSON.stringify(obj));
-        //     });
-        // }, 1000);
-        // broadcast(wss,obj);
         broadcastExclude(wss, obj, ws);
     });
 

@@ -32,7 +32,7 @@ class Player {
       ctx.fillRect(this.x, this.y, this.width, this.height);
   
       this.frameTimer += deltaTime;
-      // console.log(this.frameTimer)
+    //   console.log(this.frameTimer)
   
       if(this.Animation){
         if (this.frameTimer > this.frameInterval) {
@@ -43,11 +43,11 @@ class Player {
             this.frameX = 0;
           }
           this.frameTimer = 0;
-        }
-        else {
-          this.frameX = 0;
-        }
+        } 
       }
+      else {
+        this.frameX = 0;
+    }
   
       ctx.drawImage(
         this.spriteImage,

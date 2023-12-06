@@ -50,7 +50,7 @@ function receiveMessage(event) {
     renderMessage(obj, "someone else");
 }
 
-
+    
 function confirmSetUser() {
     console.log("Vem...");
 
@@ -94,8 +94,6 @@ function renderMessage(obj, other) {
     else {
         span.classList = "username";
     }
-
-
 
     //skapa timestamp
     let timestamp = document.createElement("time");
