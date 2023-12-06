@@ -24,12 +24,11 @@ const websocket = new WebSocket("ws://localhost:8081");
 messageForm.addEventListener("submit", sendMessage);
 websocket.addEventListener("message", receiveMessage);
 setUser.addEventListener("click", confirmSetUser);
-// document.getElementById("canvas").addEventListener("keydown");
+document.getElementById("canvas").addEventListener("keydown",sendGameState);
 
 
 
-// event handlers
-// ----------------------------------------------
+
 // function handleGameInput(event) {
 //     const gameInput = { type: 'gameInput', key: event.key };
 //     websocket.send(JSON.stringify(gameInput));
@@ -38,16 +37,58 @@ setUser.addEventListener("click", confirmSetUser);
 
 // function send gamestate
 function sendGameState(){
+    const gameState = {
+        player1: { x: player1.x, y: player1.y },
+        player2: { x: player2.x, y: player2.y }
+    };
 
+    websocket.send(JSON.stringify({ type: 'gameState', data: gameState }));
 }
-//function recive gamestate
-function reciveGameState(){
 
+websocket.addEventListener("message",receiveMessage);
+
+
+//function recive gamestate
+function receiveGameState(event) {
+    const messageData = JSON.parse(event.data);
+
+    if (messageData.type === 'gameState') {
+        // Extract player positions from received game state
+        const player1Position = messageData.data.player1;
+        const player2Position = messageData.data.player2;
+
+        // Update player positions
+        player1.x = player1Position.x;
+        player1.y = player1Position.y;
+
+        player2.x = player2Position.x;
+        player2.y = player2Position.y;
+
+        // Call renderGameState with the updated player positions
+        renderGameState(player1, player2);
+    } else {
+        // Handle other types of messages if needed
+    }
 }
 //Function render game state
-function RenderGameState(){
 
-}
+    function renderGameState(player1, player2) {
+        // Clear Canvas
+        ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    
+        // Draw the current map
+        currentMap.draw(ctx);
+    
+        // Draw player1
+        player1.draw(ctx, 0);
+    
+        // Draw player2
+        player2.draw(ctx, 0);
+    
+   
+    }
+
+
 
 function sendMessage(event) {
     event.preventDefault();
@@ -194,16 +235,20 @@ function handleInput(keys, map) {
 
     if (keys.arrowUp.isPressed && player1.y > borders.top && !isCollidingTop) {
         player1.move(0, -1, 3);
+        sendGameState()
     }
 
     if (keys.arrowDown.isPressed && (player1.y + player1.height) < CANVAS_HEIGHT - borders.bottom && !isCollidingBottom) {
         player1.move(0, 1, 0);
+        sendGameState()
     }
     if (keys.arrowLeft.isPressed && player1.x > borders.left && !isCollidingLeft) {
         player1.move(-1, 0, 1);
+        sendGameState()
     }
     if (keys.arrowRight.isPressed && (player1.x + player1.width) < CANVAS_WIDTH - borders.right && !isCollidingRight) {
         player1.move(1, 0, 2);
+        sendGameState()
     }
     if (keys.k.isPressed) {
         player1.move(0, 0, 4);
@@ -212,16 +257,20 @@ function handleInput(keys, map) {
     // player 2
     if (keys.w.isPressed && player2.y > borders.top && !isCollidingTopPlayer2) {
         player2.move(0, -1, 3);
+        sendGameState()
     }
     if (keys.s.isPressed && (player2.y + player2.height) < CANVAS_HEIGHT - borders.bottom && !isCollidingBottomPlayer2) {
         player2.move(0, 1, 0);
+        sendGameState()
     }
 
     if (keys.a.isPressed && player2.x > borders.left && !isCollidingLeftPlayer2) {
         player2.move(-1, 0, 1);
+        sendGameState()
     }
     if (keys.d.isPressed && (player2.x + player2.width) < CANVAS_WIDTH - borders.right && !isCollidingRightPlayer2) {
         player2.move(1, 0, 2);
+        sendGameState()
     }
 
 
