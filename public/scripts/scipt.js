@@ -25,21 +25,32 @@ messageForm.addEventListener("submit", sendMessage);
 websocket.addEventListener("message", receiveMessage);
 setUser.addEventListener("click", confirmSetUser);
 websocket.addEventListener("message",receiveGameState);
-message.addEventListener('focus', () => {
-    isChatFocused = true;
-});
-message.addEventListener('blur', () => {
-    isChatFocused = false;
-});
+// message.addEventListener('focus', () => {
+//     isChatFocused = true;
+// });
+// message.addEventListener('blur', () => {
+//     isChatFocused = false;
+// });
 // document.getElementById("canvas").addEventListener("keydown", sendGameState);
 
+websocket.addEventListener("message", handleGameState);
 
+function handleGameState(event) {
+    try {
+        const messageData = JSON.parse(event.data);
 
-
-function handleGameInput(event) {
-    if (isChatFocused) {
-        return;
+        if (messageData.type === 'gameState') {
+            // Handle game state
+            receiveGameState(messageData);
+        }
+    } catch (error) {
+        console.error('Error handling game state:', error);
     }
+}
+function handleGameInput(event) {
+    //  if (isChatFocused) {
+    //     return;
+    // }
     const gameInput = { type: 'gameInput', key: event.key };
     websocket.send(JSON.stringify(gameInput));
 
@@ -82,6 +93,7 @@ function receiveGameState(event) {
         
     } else {
         // Handle other types of messages if needed
+        renderMessage(messageData, "someone else");
     }
 }
 //Function render game state
@@ -103,7 +115,7 @@ function renderGameState(player1, player2,deltatime) {
 }
 
 
-let isChatFocused = false;
+// let isChatFocused = false;
 
 function sendMessage(event) {
     event.preventDefault();
@@ -224,9 +236,29 @@ const orientalMap = new Map({
     },
 
 });
+const firstMap = new Map({
+    imageSrc: "./images/first-map.png",
+    width: CANVAS_WIDTH,
+    height: CANVAS_HEIGHT,
+    borders: {
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 130
+    },
+    player1StartingCordinates: {
+        x: 350,
+        y: 320
+    },
+    player2StartingCordinates: {
+        x: 450,
+        y: 320
+    },
+
+});
 
 
-let currentMap = orientalMap;
+let currentMap = firstMap;
 
 
 const player1 = new Player(currentMap.player1StartingCordinates.x, currentMap.player1StartingCordinates.y, "transparent", "./images/punk_guy_green.png");  // Objekt skapas med x,y,width,height som kan ritas ut, som kan flytta sin position
