@@ -17,7 +17,7 @@ const CANVAS_HEIGHT = canvasEl.getBoundingClientRect().height;
 const websocket = new WebSocket("ws://localhost:8081");
 
 
-
+let isChatFocused = false;
 
 // event listeners
 // ----------------------------------------------
@@ -25,37 +25,28 @@ messageForm.addEventListener("submit", sendMessage);
 websocket.addEventListener("message", receiveMessage);
 setUser.addEventListener("click", confirmSetUser);
 websocket.addEventListener("message",receiveGameState);
-// message.addEventListener('focus', () => {
-//     isChatFocused = true;
-// });
-// message.addEventListener('blur', () => {
-//     isChatFocused = false;
-// });
-// document.getElementById("canvas").addEventListener("keydown", sendGameState);
 
-websocket.addEventListener("message", handleGameState);
 
-function handleGameState(event) {
-    try {
-        const messageData = JSON.parse(event.data);
+// Add event listeners for focus and blur events on the message input
+message.addEventListener("focus", () => {
+    isChatFocused = true;
+});
 
-        if (messageData.type === 'gameState') {
-            // Handle game state
-            receiveGameState(messageData);
-        }
-    } catch (error) {
-        console.error('Error handling game state:', error);
-    }
-}
+message.addEventListener("blur", () => {
+    isChatFocused = false;
+});
+
 function handleGameInput(event) {
-    //  if (isChatFocused) {
-    //     return;
-    // }
+    
+    
     const gameInput = { type: 'gameInput', key: event.key };
     websocket.send(JSON.stringify(gameInput));
 
+    
     // Only send game state when handling game input
     sendGameState();
+
+    isChatFocused = false;
 }
 
 
@@ -93,7 +84,7 @@ function receiveGameState(event) {
         
     } else {
         // Handle other types of messages if needed
-        renderMessage(messageData, "someone else");
+        // renderMessage(messageData, "someone else");
     }
 }
 //Function render game state
@@ -123,7 +114,8 @@ function sendMessage(event) {
 
     let obj = { message: message.value, user: user.value };
     websocket.send(JSON.stringify(obj));
-
+    // Reset focus status after sending a message
+    isChatFocused = false;
     //rendera eget meddelandet på sidan = vänta inte på servern...
     renderMessage(obj, "");
     message.value = ""
@@ -377,6 +369,16 @@ function gameLoop(timestamp) {
     const deltatime = timestamp - lastTime;
     lastTime = timestamp
 
+
+
+    // Check if the chat input is focused
+    if (isChatFocused) {
+        // If the chat input is focused, do not handle game input
+        return;
+    }
+    else{
+        isChatFocused = false;
+    }
     // Clear Canvas
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 

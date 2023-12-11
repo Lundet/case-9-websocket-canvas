@@ -13,12 +13,14 @@
 
     <div class="Chat">
         <h1>Chat</h1>
-        <input type="text" id="user" placeholder="Skriv namn (minst 3 tecken)">
-        <button id="setUser">Kliv in i chatten</button>
+        <label for="user">Enter your name (at least 3 characters): </label>
+        <input type="text" id="user" placeholder="Your Name">
+        <button id="setUser">Enter Chat</button>
 
         <form action="" method="post" id="messageForm" class="hidden">
-            <input type="text" id="message" required autofocus>
-            <input type="submit" value="Sänd">
+            <label for="message">Type your message: </label>
+            <input type="text" id="message" required autofocus placeholder="Type your message...">
+            <input type="submit" value="Send Message" aria-label="Send Message">
         </form>
         <hr>
         <div id="chatHistory" class="hidden"></div>

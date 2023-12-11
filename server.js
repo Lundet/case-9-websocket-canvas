@@ -62,7 +62,6 @@ function broadcast(wss, obj) {
 // en funktion för att skicka meddlande till ALLA utom aktuell client
 function broadcastExclude(wss, obj, ws) {
     wss.clients.forEach(client => {
-        console.log("A");
         if (client !== ws) {
             client.send(JSON.stringify(obj));
         }
