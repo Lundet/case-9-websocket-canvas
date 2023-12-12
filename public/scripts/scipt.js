@@ -71,7 +71,6 @@ function handleGameInput(event) {
 }
 
 
-
 function sendGameState() {
     const gameState = {
         type: 'gameState',
@@ -108,9 +107,9 @@ function receiveGameState(messageData) {
 
 //Function render game state
 
-function renderGameState(player1, player2, deltatime) {
+function renderGameState(player1, player2,ctx, deltatime) {
     // Clear Canvas
-    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    // ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     // Draw the current map
     currentMap.draw(ctx);
@@ -203,14 +202,14 @@ const KEYS = {
 
 
 
-const orientalMap = new Map({
-    imageSrc: "./images/oriental-map.png",
+const sandMap = new Map({
+    imageSrc: "./images/sand-map.png",
     width: CANVAS_WIDTH,
     height: CANVAS_HEIGHT,
     borders: {
         top: 0,
         left: 0,
-        right: 490,
+        right: 0,
         bottom: 0
     },
     player1StartingCordinates: {
@@ -245,7 +244,7 @@ const firstMap = new Map({
 });
 
 
-let currentMap = firstMap;
+let currentMap = sandMap;
 
 
 const player1 = new Player(currentMap.player1StartingCordinates.x, currentMap.player1StartingCordinates.y, "transparent", "./images/punk_guy_green.png");  // Objekt skapas med x,y,width,height som kan ritas ut, som kan flytta sin position
