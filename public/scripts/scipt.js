@@ -16,8 +16,13 @@ const CANVAS_HEIGHT = canvasEl.getBoundingClientRect().height;
 // skapa en websocket i klienten
 const websocket = new WebSocket("ws://localhost:8081");
 
+const zoomLevel = 4;
 
+// TILE SIZES
+const tileWidth = 16 * zoomLevel; // TILE: 64
+const tileHeight = 16 * zoomLevel; // TILE: 64 
 let isChatFocused = false;
+
 
 // event listeners
 // ----------------------------------------------
@@ -72,17 +77,20 @@ function handleGameInput(event) {
 
 
 function sendGameState() {
+
+
     const gameState = {
         type: 'gameState',
         data: {
             player1: { x: player1.x, y: player1.y },
-            player2: { x: player2.x, y: player2.y }
+            player2: { x: player2.x, y: player2.y },
         }
     };
 
     websocket.send(JSON.stringify(gameState));
     console.log('Sent game state:', gameState);
 }
+
 
 
 function receiveGameState(messageData) {
@@ -99,19 +107,18 @@ function receiveGameState(messageData) {
     player2.x = player2Position.x;
     player2.y = player2Position.y;
 
+    
     // Call renderGameState with the updated player positions
-    renderGameState(player1, player2);
+    renderGameState(player1, player2, ctx,);
 }
 
 
 
 //Function render game state
 
-function renderGameState(player1, player2,ctx, deltatime) {
+function renderGameState(player1, player2, ctx, deltatime) {
     // Clear Canvas
     // ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-    // Draw the current map
     currentMap.draw(ctx);
 
     // Draw player1
@@ -185,6 +192,22 @@ function confirmSetUser() {
     }
 }
 
+function checkMapChangeCollision(
+    player,
+    mapChangeX,
+    mapChangeY,
+    mapChangeWidth,
+    mapChangeHeight,
+    map
+) {
+    return (
+        // Check if player's position is within the boundaries of the map change area on the current map
+        player.x >= mapChangeX &&
+        player.x + player.width <= mapChangeX + mapChangeWidth &&
+        player.y >= mapChangeY &&
+        player.y + player.height <= mapChangeY + mapChangeHeight
+    );
+}
 
 const KEYS = {
     arrowUp: { isPressed: false },
@@ -200,28 +223,6 @@ const KEYS = {
     d: { isPressed: false }
 }
 
-
-
-const sandMap = new Map({
-    imageSrc: "./images/sand-map.png",
-    width: CANVAS_WIDTH,
-    height: CANVAS_HEIGHT,
-    borders: {
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0
-    },
-    player1StartingCordinates: {
-        x: 90,
-        y: 180
-    },
-    player2StartingCordinates: {
-        x: 180,
-        y: 180
-    },
-
-});
 const firstMap = new Map({
     imageSrc: "./images/first-map.png",
     width: CANVAS_WIDTH,
@@ -240,11 +241,49 @@ const firstMap = new Map({
         x: 450,
         y: 320
     },
+    nextMapCollisionBox: {
+        x: 5.4,
+        y: 0,
+        width: 3,
+        height: 1.5,
+    },
+    nextMap: null
 
 });
 
+const sandMap = new Map({
+    imageSrc: "./images/sand-map.png",
+    width: CANVAS_WIDTH,
+    height: CANVAS_HEIGHT,
+    borders: {
+        top: 45,
+        left: 0,
+        right: 0,
+        bottom: 0
+    },
+    player1StartingCordinates: {
+        x: 370,
+        y: 400
+    },
+    player2StartingCordinates: {
+        x: 450,
+        y: 400
+    }, nextMapCollisionBox: {
+        x: 5.4,
+        y: 7.5,
+        width: 3,
+        height: 1.5,
+    },
 
-let currentMap = sandMap;
+
+});
+let currentMap = firstMap;
+
+firstMap.nextMap = sandMap
+sandMap.nextMap = firstMap
+
+
+
 
 
 const player1 = new Player(currentMap.player1StartingCordinates.x, currentMap.player1StartingCordinates.y, "transparent", "./images/punk_guy_green.png");  // Objekt skapas med x,y,width,height som kan ritas ut, som kan flytta sin position
@@ -374,6 +413,48 @@ function gameLoop(timestamp) {
     // Do movements based on which key is pressed
     handleInput(KEYS, currentMap);
     checkCollisions(player1, player2);
+    let mapChangeX = currentMap.nextMapCollisionBox.x * tileWidth;
+    let mapChangeY = currentMap.nextMapCollisionBox.y * tileHeight;
+    let mapChangeWidth = currentMap.nextMapCollisionBox.width * tileWidth;
+    let mapChangeHeight = currentMap.nextMapCollisionBox.height * tileHeight;
+
+
+    // Check if player1 collides with the map change box
+    if (
+        checkMapChangeCollision(
+            player1,
+            mapChangeX,
+            mapChangeY,
+            mapChangeWidth,
+            mapChangeHeight,
+            currentMap
+        )
+    ) {
+        currentMap = currentMap.nextMap
+        player1.x = currentMap.player1StartingCordinates.x;
+        player1.y = currentMap.player1StartingCordinates.y;
+        player2.x = currentMap.player2StartingCordinates.x;
+        player2.y = currentMap.player2StartingCordinates.y;
+    }
+    // Check if player1 collides with the map change box
+    if (
+        checkMapChangeCollision(
+            player2,
+            mapChangeX,
+            mapChangeY,
+            mapChangeWidth,
+            mapChangeHeight,
+            currentMap
+        )
+    ) {
+        currentMap = currentMap.nextMap
+        player1.x = currentMap.player1StartingCordinates.x;
+        player1.y = currentMap.player1StartingCordinates.y;
+        player2.x = currentMap.player2StartingCordinates.x;
+        player2.y = currentMap.player2StartingCordinates.y;
+    }
+    ctx.fillStyle = "rgba(0,255,0,0.5)";
+    ctx.fillRect(mapChangeX, mapChangeY, mapChangeWidth, mapChangeHeight);
 
     player1.draw(ctx, deltatime);
     player2.draw(ctx, deltatime);

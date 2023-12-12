@@ -1,5 +1,6 @@
 class Map {
-    constructor({ imageSrc, width, height, borders, player1StartingCordinates, player2StartingCordinates }) {
+    constructor({ imageSrc, width, height, borders, player1StartingCordinates, player2StartingCordinates,nextMapCollisionBox,
+        nextMap }) {
         this.image = new Image();
         this.image.src = imageSrc;
         this.width = width;
@@ -12,6 +13,13 @@ class Map {
         };
         this.player1StartingCordinates = player1StartingCordinates;
         this.player2StartingCordinates = player2StartingCordinates;
+        this.nextMapCollisionBox = {
+            x: nextMapCollisionBox.x,
+            y: nextMapCollisionBox.y,
+            width: nextMapCollisionBox.width,
+            height: nextMapCollisionBox.height
+        }
+        this.nextMap = nextMap;
     }
 
     draw(ctx) {
