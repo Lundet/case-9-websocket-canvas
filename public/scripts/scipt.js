@@ -21,12 +21,28 @@ let isChatFocused = false;
 
 // event listeners
 // ----------------------------------------------
-messageForm.addEventListener("submit", sendMessage);
-websocket.addEventListener("message", receiveMessage);
+messageForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    // Handle chat message submission
+    sendMessage();
+
+});
+
 setUser.addEventListener("click", confirmSetUser);
-websocket.addEventListener("message",receiveGameState);
 
 
+websocket.addEventListener("message", (event) => {
+    const messageData = JSON.parse(event.data);
+
+    if (messageData.type === 'chatMessage') {
+        // Handle chat messages
+        renderMessage(messageData, "someone else");
+    } else if (messageData.type === 'gameState') {
+        // Handle game state messages
+        receiveGameState(messageData);
+    }
+    // Add more conditions for other message types if needed
+});
 // Add event listeners for focus and blur events on the message input
 message.addEventListener("focus", () => {
     isChatFocused = true;
@@ -50,7 +66,6 @@ function handleGameInput(event) {
 }
 
 
-// function send gamestate
 function sendGameState() {
     const gameState = {
         player1: { x: player1.x, y: player1.y },
@@ -58,35 +73,29 @@ function sendGameState() {
     };
 
     websocket.send(JSON.stringify({ type: 'gameState', data: gameState }));
+    console.log('Sent game state:', gameState);
+}
+
+function receiveGameState(messageData) {
+    console.log('Received game state:', messageData);
+
+    // Extract player positions from received game state
+    const player1Position = messageData.data.player1;
+    const player2Position = messageData.data.player2;
+
+    // Update player positions
+    player1.x = player1Position.x;
+    player1.y = player1Position.y;
+
+    player2.x = player2Position.x;
+    player2.y = player2Position.y;
+
+    // Call renderGameState with the updated player positions
+    renderGameState(player1, player2);
 }
 
 
 
-//function recive gamestate
-function receiveGameState(event) {
-    const messageData = JSON.parse(event.data);
-
-    if (messageData.type === 'gameState') {
-        
-        // Extract player positions from received game state
-        const player1Position = messageData.data.player1;
-        const player2Position = messageData.data.player2;
-
-        // Update player positions
-        player1.x = player1Position.x;
-        player1.y = player1Position.y;
-
-        player2.x = player2Position.x;
-        player2.y = player2Position.y;
-
-        // Call renderGameState with the updated player positions
-        renderGameState(player1, player2);
-        
-    } else {
-        // Handle other types of messages if needed
-        // renderMessage(messageData, "someone else");
-    }
-}
 //Function render game state
 
 function renderGameState(player1, player2,deltatime) {
@@ -108,66 +117,46 @@ function renderGameState(player1, player2,deltatime) {
 
 // let isChatFocused = false;
 
-function sendMessage(event) {
-    event.preventDefault();
-    console.log("Skicka meddelandet med ws - websocket");
-
-    let obj = { message: message.value, user: user.value };
+function sendMessage() {
+    let obj = { message: message.value, user: user.value, type: 'chatMessage' };
     websocket.send(JSON.stringify(obj));
-    // Reset focus status after sending a message
-    isChatFocused = false;
-    //rendera eget meddelandet på sidan = vänta inte på servern...
+    // Render your own chat message on the page
     renderMessage(obj, "");
-    message.value = ""
+    message.value = "";
 }
-
-
 function receiveMessage(event) {
     console.log("event", event);
-
     // omvandla event.data till JavaScript objekt
     const obj = JSON.parse(event.data);
     console.log("obj", obj);
-
     //rendera
     renderMessage(obj, "someone else");
 }
-
-
 function renderMessage(obj, other) {
     // Skapa en container
     let div = document.createElement("div");
     div.classList = "container";
-
     // Skapa ett element för meddelandet
     let p = document.createElement("p");
     p.textContent = obj.message;
     p.classList = "message-text";
-
     // Skapa ett element för username
     let span = document.createElement("span");
     span.textContent = obj.user;
-
-
-
     if (other.length > 0) {
         span.classList = "other";
     }
     else {
         span.classList = "username";
     }
-
     //skapa timestamp
     let timestamp = document.createElement("time");
     let date = new Date();
     timestamp.textContent = date.toLocaleTimeString().slice(0, 5);
     timestamp.datatime = date.toISOString();
-
-
     div.appendChild(p);
     div.appendChild(span);
     div.appendChild(timestamp);
-
     // Lägg till DOM
     chatHistory.appendChild(div);
 }
