@@ -30,7 +30,6 @@ messageForm.addEventListener("submit", (event) => {
 
 setUser.addEventListener("click", confirmSetUser);
 
-
 websocket.addEventListener("message", (event) => {
     const messageData = JSON.parse(event.data);
 
@@ -43,6 +42,8 @@ websocket.addEventListener("message", (event) => {
     }
     // Add more conditions for other message types if needed
 });
+
+
 // Add event listeners for focus and blur events on the message input
 message.addEventListener("focus", () => {
     isChatFocused = true;
@@ -51,30 +52,39 @@ message.addEventListener("focus", () => {
 message.addEventListener("blur", () => {
     isChatFocused = false;
 });
+user.addEventListener("focus", () => {
+    isChatFocused = true;
+});
+
+user.addEventListener("blur", () => {
+    isChatFocused = false;
+});
 
 function handleGameInput(event) {
-    
-    
     const gameInput = { type: 'gameInput', key: event.key };
     websocket.send(JSON.stringify(gameInput));
 
-    
-    // Only send game state when handling game input
-    sendGameState();
-
-    isChatFocused = false;
+    // Only send game state when handling game input and the chat is not focused
+    if (!isChatFocused) {
+        sendGameState();
+    }
 }
+
 
 
 function sendGameState() {
     const gameState = {
-        player1: { x: player1.x, y: player1.y },
-        player2: { x: player2.x, y: player2.y }
+        type: 'gameState',
+        data: {
+            player1: { x: player1.x, y: player1.y },
+            player2: { x: player2.x, y: player2.y }
+        }
     };
 
-    websocket.send(JSON.stringify({ type: 'gameState', data: gameState }));
+    websocket.send(JSON.stringify(gameState));
     console.log('Sent game state:', gameState);
 }
+
 
 function receiveGameState(messageData) {
     console.log('Received game state:', messageData);
@@ -98,7 +108,7 @@ function receiveGameState(messageData) {
 
 //Function render game state
 
-function renderGameState(player1, player2,deltatime) {
+function renderGameState(player1, player2, deltatime) {
     // Clear Canvas
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
@@ -114,8 +124,6 @@ function renderGameState(player1, player2,deltatime) {
 
 }
 
-
-// let isChatFocused = false;
 
 function sendMessage() {
     let obj = { message: message.value, user: user.value, type: 'chatMessage' };
@@ -177,8 +185,6 @@ function confirmSetUser() {
         chatHistory.classList = "";
     }
 }
-
-
 
 
 const KEYS = {
@@ -256,8 +262,11 @@ let isCollidingTopPlayer2 = false;
 let isCollidingBottomPlayer2 = false;
 
 function handleInput(keys, map) {
-
+    if (isChatFocused) {
+        return;
+    }
     const borders = map.borders;
+
 
     // player 1
 
@@ -358,33 +367,21 @@ function gameLoop(timestamp) {
     const deltatime = timestamp - lastTime;
     lastTime = timestamp
 
-
-
-    // Check if the chat input is focused
-    if (isChatFocused) {
-        // If the chat input is focused, do not handle game input
-        return;
-    }
-    else{
-        isChatFocused = false;
-    }
     // Clear Canvas
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-
 
     currentMap.draw(ctx);
 
     // Do movements based on which key is pressed
     handleInput(KEYS, currentMap);
-    checkCollisions(player1, player2)
+    checkCollisions(player1, player2);
 
     player1.draw(ctx, deltatime);
-
     player2.draw(ctx, deltatime);
 
     // Do gameLoop again
     requestAnimationFrame(gameLoop);
+
 }
 
 window.addEventListener('keydown', (event) => {
@@ -426,7 +423,7 @@ window.addEventListener('keydown', (event) => {
 })
 window.addEventListener('keyup', (event) => {
     console.log("KeyUp event trigged. key", event.key, "has been released");
-     handleGameInput(event);
+    handleGameInput(event);
     // Player 1
     if (event.key === "ArrowUp") {
         player1.move(0, 0, 3, false);
