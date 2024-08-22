@@ -23,6 +23,18 @@ The WebSocket Canvas Game is a multiplayer web application designed to mimic the
 - **Collision Detection**: Implemented collision detection to prevent avatars from walking through each other.
 - **Map Boundaries**: Added walls and boundaries on the map that avatars cannot pass through, improving gameplay and navigation.
 
+## Technologies Used
+
+- **HTML5 Canvas**: For rendering the game environment and avatars.
+- **WebSockets**: For real-time communication and synchronization between clients.
+- **JavaScript**: For game logic, avatar control, and interaction handling.
+
+
+## Development
+
+- **Version Control**: Managed using Git with detailed commit messages.
+- **Documentation**: Comprehensive README file to guide users through setup and usage.
+
 ## Installation and Usage
 
 ### **Setup**
@@ -52,17 +64,12 @@ The WebSocket Canvas Game is a multiplayer web application designed to mimic the
 4. **Access the Application**:
     Open your browser and navigate to `http://localhost:8081` to play the game.
 
-## Technologies Used
+## Usage
 
-- **HTML5 Canvas**: For rendering the game environment and avatars.
-- **WebSockets**: For real-time communication and synchronization between clients.
-- **JavaScript**: For game logic, avatar control, and interaction handling.
+1. **Open Multiple Browser Tabs**: Open several tabs or windows to test the multiplayer functionality.
+2. **Control Avatars**: Use the arrow keys to move your avatar around the canvas.
+3. **Chat**: Type messages in the chat box to communicate with other players.
 
-
-## Development
-
-- **Version Control**: Managed using Git with detailed commit messages.
-- **Documentation**: Comprehensive README file to guide users through setup and usage.
 
 ## Conclusion
 
