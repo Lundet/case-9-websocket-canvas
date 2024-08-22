@@ -4,6 +4,9 @@
 
 The WebSocket Canvas Game is a multiplayer web application designed to mimic the functionality of platforms like gather.town. It integrates WebSockets and HTML5 Canvas to create a real-time multiplayer environment where users can interact with each other using avatars and a shared map. This project demonstrates advanced web development skills including real-time communication and interactive graphics.
 
+![image](https://github.com/user-attachments/assets/d212c59c-87ec-476b-9dd2-01f12038971c)
+
+
 ## Features
 
 ### **Minimum Requirements**
@@ -54,11 +57,6 @@ The WebSocket Canvas Game is a multiplayer web application designed to mimic the
 - **HTML5 Canvas**: For rendering the game environment and avatars.
 - **WebSockets**: For real-time communication and synchronization between clients.
 - **JavaScript**: For game logic, avatar control, and interaction handling.
-
-## Screenshots
-
-![image](https://github.com/user-attachments/assets/d9d8db2d-c417-45a3-be51-0ca9d098af4b)
-
 
 
 ## Development
